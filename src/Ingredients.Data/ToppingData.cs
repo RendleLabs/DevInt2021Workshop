@@ -87,7 +87,11 @@ public class ToppingData : IToppingData
         {
             if (_initialized) return;
 
-            await _client.CreateIfNotExistsAsync();
+            _initialized = true;
+
+            var response = await _client.CreateIfNotExistsAsync();
+            
+            if (response is null) return;
 
             await Task.WhenAll(
                 AddAsync("cheese", "Cheese", 0.5d, 10000),
@@ -102,8 +106,6 @@ public class ToppingData : IToppingData
                 AddAsync("olives", "Olives", 1d, 1000),
                 AddAsync("beef", "Beef", 1d, 1000)
             );
-
-            _initialized = true;
         }
         catch (Exception ex)
         {
