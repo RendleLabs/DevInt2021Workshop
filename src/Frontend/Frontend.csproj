@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\ingredients.proto" GrpcServices="Client" />
+    <Protobuf Include="Protos\orders.proto" GrpcServices="Client"/>
   </ItemGroup>
 
 </Project>
