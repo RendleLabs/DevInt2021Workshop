@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Ingredients.Protos;
+using Microsoft.AspNetCore.Authorization;
 using Orders.Protos;
 using Orders.PubSub;
 
@@ -20,6 +21,7 @@ public class OrderServiceImpl : OrderService.OrderServiceBase
         _orderPublisher = orderPublisher;
     }
 
+    [Authorize]
     public override async Task<PlaceOrderResponse> PlaceOrder(PlaceOrderRequest request, ServerCallContext context)
     {
         var decrementCrustsRequest = new DecrementCrustsRequest

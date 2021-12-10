@@ -1,3 +1,5 @@
+using Frontend.Auth;
+using Grpc.Core;
 using Ingredients.Protos;
 using Orders.Protos;
 
@@ -14,7 +16,23 @@ builder.Services.AddGrpcClient<IngredientsService.IngredientsServiceClient>(opti
 var ordersUri = builder.Configuration.GetServiceUri("Orders", "https")
                 ?? new Uri("https://localhost:5005");
 
-builder.Services.AddGrpcClient<OrderService.OrderServiceClient>(options => options.Address = ordersUri);
+builder.Services.AddGrpcClient<OrderService.OrderServiceClient>(options => options.Address = ordersUri)
+    .ConfigureChannel((provider, channel) =>
+    {
+        var authHelper = provider.GetRequiredService<AuthHelper>();
+        var credentials = CallCredentials.FromInterceptor(async (context, metadata) =>
+        {
+            var token = await authHelper.GetTokenAsync();
+            metadata.Add("Authorization", $"Bearer {token}");
+        });
+        channel.Credentials = ChannelCredentials.Create(ChannelCredentials.SecureSsl, credentials);
+    });
+
+builder.Services.AddHttpClient<AuthHelper>(client =>
+{
+    client.BaseAddress = ordersUri;
+    client.DefaultRequestVersion = new Version(2, 0);
+});
 
 var app = builder.Build();
 
