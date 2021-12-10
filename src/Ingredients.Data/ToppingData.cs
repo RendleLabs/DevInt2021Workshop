@@ -86,22 +86,26 @@ public class ToppingData : IToppingData
         try
         {
             if (_initialized) return;
-
-            await _client.CreateIfNotExistsAsync();
-
-            await Task.WhenAll(
-                AddAsync("cheese", "Cheese", 0.5d, 10000),
-                AddAsync("sauce", "Tomato Sauce", 0.5d, 10000),
-                AddAsync("pepperoni", "Pepperoni", 1d, 1000),
-                AddAsync("ham", "Ham", 1d, 1000),
-                AddAsync("mushroom", "Mushrooms", 0.75d, 1000),
-                AddAsync("pineapple", "Pineapple", 2d, 1000),
-                AddAsync("anchovies", "Anchovies", 1d, 1000),
-                AddAsync("peppers", "Peppers", 0.75d, 1000),
-                AddAsync("onion", "Onion", 0.75d, 1000),
-                AddAsync("olives", "Olives", 1d, 1000),
-                AddAsync("beef", "Beef", 1d, 1000)
-            );
+            
+            var response = await _client.CreateIfNotExistsAsync();
+            
+            // If response is null, the table already existed
+            if (response is not null)
+            {
+                await Task.WhenAll(
+                    AddAsync("cheese", "Cheese", 0.5d, 10000),
+                    AddAsync("sauce", "Tomato Sauce", 0.5d, 10000),
+                    AddAsync("pepperoni", "Pepperoni", 1d, 1000),
+                    AddAsync("ham", "Ham", 1d, 1000),
+                    AddAsync("mushroom", "Mushrooms", 0.75d, 1000),
+                    AddAsync("pineapple", "Pineapple", 2d, 1000),
+                    AddAsync("anchovies", "Anchovies", 1d, 1000),
+                    AddAsync("peppers", "Peppers", 0.75d, 1000),
+                    AddAsync("onion", "Onion", 0.75d, 1000),
+                    AddAsync("olives", "Olives", 1d, 1000),
+                    AddAsync("beef", "Beef", 1d, 1000)
+                );
+            }
 
             _initialized = true;
         }

@@ -6,6 +6,7 @@ package ingredients;
 
 service IngredientsService {
   rpc GetToppings(GetToppingsRequest) returns (GetToppingsResponse);
+  rpc GetCrusts(GetCrustsRequest) returns (GetCrustsResponse);
 }
 
 message GetToppingsRequest { }
@@ -20,3 +21,15 @@ message Topping {
   double price = 3;
 }
 
+message GetCrustsRequest { }
+
+message GetCrustsResponse {
+  repeated Crust crusts = 1;
+}
+
+message Crust {
+  string id = 1;
+  string name = 2;
+  int32 size = 3;
+  double price = 4;
+}

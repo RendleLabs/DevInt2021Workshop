@@ -7,11 +7,13 @@ namespace Ingredients.Services;
 public class IngredientsServiceImpl : IngredientsService.IngredientsServiceBase
 {
     private readonly IToppingData _toppingData;
+    private readonly ICrustData _crustData;
     private readonly ILogger<IngredientsServiceImpl> _logger;
 
-    public IngredientsServiceImpl(IToppingData toppingData, ILogger<IngredientsServiceImpl> logger)
+    public IngredientsServiceImpl(IToppingData toppingData, ICrustData crustData, ILogger<IngredientsServiceImpl> logger)
     {
         _toppingData = toppingData;
+        _crustData = crustData;
         _logger = logger;
     }
 
@@ -37,6 +39,40 @@ public class IngredientsServiceImpl : IngredientsService.IngredientsServiceBase
         catch (OperationCanceledException)
         {
             _logger.LogWarning("GetToppings cancelled");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
+    }
+
+    public override async Task<GetCrustsResponse> GetCrusts(GetCrustsRequest request, ServerCallContext context)
+    {
+        try
+        {
+            var crusts = await _crustData.GetAsync(context.CancellationToken);
+
+            var response = new GetCrustsResponse
+            {
+                Crusts =
+                {
+                    crusts.Select(c => new Protos.Crust
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Size = c.Size,
+                        Price = c.Price
+                    })
+                }
+            };
+
+            return response;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("GetCrusts cancelled");
             throw;
         }
         catch (Exception ex)

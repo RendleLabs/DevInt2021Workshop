@@ -9,7 +9,7 @@ public class CrustData : ICrustData
     private readonly ILogger<CrustData> _log;
     private const string TableName = "crusts";
     private readonly TableClient _client;
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim _semaphore = new(1);
     private bool _initialized;
 
     public CrustData(ILogger<CrustData> log)
@@ -71,15 +71,22 @@ public class CrustData : ICrustData
         {
             if (_initialized) return;
 
-            await _client.CreateIfNotExistsAsync();
-            await AddAsync("thin9", "Thin", 9, 5d, 1000);
-            await AddAsync("thin12", "Thin", 12, 7.50d, 1000);
-            await AddAsync("thin15", "Thin", 15, 10d, 1000);
-            await AddAsync("deep9", "Deep", 9, 6d, 1000);
-            await AddAsync("deep12", "Deep", 12, 9d, 1000);
-            await AddAsync("deep15", "Deep", 15, 12d, 1000);
-            await AddAsync("stuffed12", "Stuffed", 12, 10d, 1000);
-            await AddAsync("stuffed15", "Stuffed", 15, 14d, 1000);
+            var response = await _client.CreateIfNotExistsAsync();
+
+            // If response is null, the table already existed
+            if (response is not null)
+            {
+                await Task.WhenAll(
+                    AddAsync("thin9", "Thin", 9, 5d, 1000),
+                    AddAsync("thin12", "Thin", 12, 7.50d, 1000),
+                    AddAsync("thin15", "Thin", 15, 10d, 1000),
+                    AddAsync("deep9", "Deep", 9, 6d, 1000),
+                    AddAsync("deep12", "Deep", 12, 9d, 1000),
+                    AddAsync("deep15", "Deep", 15, 12d, 1000),
+                    AddAsync("stuffed12", "Stuffed", 12, 10d, 1000),
+                    AddAsync("stuffed15", "Stuffed", 15, 14d, 1000)
+                );
+            }
 
             _initialized = true;
         }

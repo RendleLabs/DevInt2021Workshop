@@ -1,37 +1,37 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Ingredients.Protos;
 using Xunit;
 
 namespace Ingredients.Tests;
 
-public class IngredientsTests : IClassFixture<IngredientsApplicationFactory>, IDisposable
+public class CrustsTests : IClassFixture<IngredientsApplicationFactory>, IDisposable
 {
     private readonly IngredientsApplicationFactory _factory;
     private readonly IngredientsService.IngredientsServiceClient _client;
 
-    public IngredientsTests(IngredientsApplicationFactory factory)
+    public CrustsTests(IngredientsApplicationFactory factory)
     {
         _factory = factory;
         _client = factory.GetGrpcClient();
     }
     
     [Fact]
-    public async Task GetsToppings()
+    public async Task GetsCrusts()
     {
-        var request = new GetToppingsRequest();
-        var response = await _client.GetToppingsAsync(request);
+        var request = new GetCrustsRequest();
+        var response = await _client.GetCrustsAsync(request);
         
-        Assert.Collection(response.Toppings,
+        Assert.Collection(response.Crusts,
             t =>
             {
-                Assert.Equal("cheese", t.Id);
+                Assert.Equal("thin", t.Id);
             },
             t =>
             {
-                Assert.Equal("tomato", t.Id);
+                Assert.Equal("classic", t.Id);
             }
-            );
+        );
     }
 
     public void Dispose()
