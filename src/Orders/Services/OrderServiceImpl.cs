@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using System.Security.Claims;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Ingredients.Protos;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +54,14 @@ public class OrderServiceImpl : OrderService.OrderServiceBase
 
     public override async Task Subscribe(SubscribeRequest request, IServerStreamWriter<OrderNotification> responseStream, ServerCallContext context)
     {
-        var token = context.CancellationToken;
+        var expiry = context.GetHttpContext()
+            .User.FindFirstValue(ClaimTypes.Expiration);
+
+        var expiredTokenSource = new CancellationTokenSource();
+
+        var linked = CancellationTokenSource.CreateLinkedTokenSource(expiredTokenSource.Token, context.CancellationToken);
+
+        var token = linked.Token;
 
         while (!token.IsCancellationRequested)
         {
