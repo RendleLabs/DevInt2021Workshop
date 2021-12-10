@@ -71,7 +71,12 @@ public class CrustData : ICrustData
         {
             if (_initialized) return;
 
-            await _client.CreateIfNotExistsAsync();
+            _initialized = true;
+
+            var response = await _client.CreateIfNotExistsAsync();
+            
+            if (response is null) return;
+            
             await AddAsync("thin9", "Thin", 9, 5d, 1000);
             await AddAsync("thin12", "Thin", 12, 7.50d, 1000);
             await AddAsync("thin15", "Thin", 15, 10d, 1000);
@@ -80,8 +85,6 @@ public class CrustData : ICrustData
             await AddAsync("deep15", "Deep", 15, 12d, 1000);
             await AddAsync("stuffed12", "Stuffed", 12, 10d, 1000);
             await AddAsync("stuffed15", "Stuffed", 15, 14d, 1000);
-
-            _initialized = true;
         }
         catch (Exception ex)
         {
