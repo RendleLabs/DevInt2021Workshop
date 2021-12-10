@@ -81,4 +81,23 @@ public class IngredientsServiceImpl : IngredientsService.IngredientsServiceBase
             throw new RpcException(new Status(StatusCode.Internal, ex.Message));
         }
     }
+
+    private static readonly DecrementCrustsResponse DecrementCrustsResponse = new();
+
+    public override async Task<DecrementCrustsResponse> DecrementCrusts(DecrementCrustsRequest request, ServerCallContext context)
+    {
+        await _crustData.DecrementStockAsync(request.CrustId, context.CancellationToken);
+        return DecrementCrustsResponse;
+    }
+
+    private static readonly DecrementToppingsResponse DecrementToppingsResponse = new();
+    
+    public override async Task<DecrementToppingsResponse> DecrementToppings(DecrementToppingsRequest request, ServerCallContext context)
+    {
+        var tasks = request.ToppingIds
+            .Select(id => _toppingData.DecrementStockAsync(id, context.CancellationToken));
+
+        await Task.WhenAll(tasks);
+        return DecrementToppingsResponse;
+    }
 }
